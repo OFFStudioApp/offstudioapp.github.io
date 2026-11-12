@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="OFFStudio">
+<meta name="description" content="OFFStudio Barbería - Reservá tu turno en Palermo y Córdoba">
+<title>OFFStudio</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+:root{--g:#7ED321;--bg:#0a0a0a;--card:#161616;--line:#262626}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:#f2f2f2;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+body{padding-bottom:env(safe-area-inset-bottom)}
+.hidden{display:none!important}
+a{color:var(--g)}
+/* splash */
+#splash{position:fixed;inset:0;background:#000;z-index:1000;display:flex;align-items:center;justify-content:center;overflow:hidden;transition:opacity .6s;cursor:pointer}
+#splash.fuera{opacity:0}
+#splash .slogo{width:min(60vw,280px);position:relative;z-index:2;animation:entrar 1s ease-out both}
+#splash .skip{position:absolute;bottom:calc(30px + env(safe-area-inset-bottom));left:0;right:0;text-align:center;color:var(--g);font-size:13px;letter-spacing:2px;z-index:2;opacity:.7}
+#splash .drop{position:absolute;top:-90px;animation:caer linear infinite;opacity:.9}
+@keyframes caer{to{transform:translateY(120vh) rotate(360deg)}}
+@keyframes entrar{from{opacity:0;transform:scale(.6) rotate(-12deg)}to{opacity:1;transform:none}}
+@keyframes subir{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes flotar{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes latido{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.dot{position:fixed;border-radius:50%;background:var(--g);box-shadow:0 0 8px var(--g);pointer-events:none;z-index:500;transform:translate(-50%,-50%);animation:boom 1.2s ease-out forwards}
+@keyframes boom{to{transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(.2);opacity:0}}
+/* top bar */
+.bar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;background:#000;border-bottom:2px solid var(--g)}
+.bar img{width:38px;height:38px;border-radius:50%;object-fit:cover}
+.bar h1{flex:1;margin:0;font-size:17px;letter-spacing:3px;color:var(--g)}
+.bar h1 small{display:block;letter-spacing:0;color:#bbb;font-size:12px;font-weight:normal;margin-top:2px}
+.back{background:none;border:0;color:var(--g);font-size:26px;cursor:pointer;padding:0 6px 0 0;line-height:1}
+.sec{background:#242424;color:#eee;border:1px solid #383838;border-radius:9px;padding:8px 12px;cursor:pointer;font-size:13px}
+/* home */
+#v-home{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:calc(30px + env(safe-area-inset-top)) 20px 40px;background:radial-gradient(circle at top,#0f2a18 0%,#000 70%);text-align:center}
+#v-home img.logo{width:150px;height:150px;border-radius:50%;object-fit:cover;animation:entrar .9s ease-out both,flotar 3.5s ease-in-out .9s infinite;cursor:pointer}
+#v-home h2{margin:16px 0 4px;letter-spacing:7px;font-size:34px;color:var(--g);animation:subir .8s ease-out .2s both}
+#v-home p{margin:0 0 28px;color:#bbb;animation:subir .8s ease-out .3s both}
+.big{display:block;width:100%;max-width:340px;margin:0 auto 14px;padding:18px;border-radius:16px;font-size:18px;font-weight:bold;cursor:pointer;border:2px solid var(--g);background:transparent;color:var(--g);animation:subir .7s ease-out both;transition:transform .15s}
+.big.main{background:var(--g);color:#000}
+.big:active{transform:scale(.97)}
+.big small{display:block;font-weight:normal;font-size:12px;opacity:.75;margin-top:3px}
+.links{margin-top:18px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-size:14px}
+.links a{text-decoration:none}
+#install{margin-top:18px}
+/* common */
+main{max-width:720px;margin:0 auto;padding:16px 14px 90px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;animation:subir .4s ease-out both}
+.card h2{margin:0 0 12px;font-size:16px;color:var(--g)}
+.opts{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 10px}
+.opt{background:#242424;color:#f2f2f2;border:1px solid #383838;border-radius:10px;padding:11px 15px;cursor:pointer;font-size:15px}
+.opt.sel{background:var(--g);color:#000;border-color:var(--g);font-weight:bold}
+input,textarea{width:100%;padding:12px;margin:6px 0 12px;border-radius:9px;border:1px solid #333;background:#0e0e0e;color:#fff;font-size:16px;font-family:inherit}
+label{font-size:13px;color:#bbb}
+button.go,a.go{display:block;width:100%;text-align:center;text-decoration:none;padding:14px;border:0;border-radius:11px;background:var(--g);color:#000;font-size:16px;font-weight:bold;cursor:pointer}
+button.go:disabled{opacity:.45}
+a.go{margin-top:10px}
+.msg{padding:11px;border-radius:9px;margin-top:10px}.err{background:#4a1c1c;color:#ffb4b4}.ok{background:#1c3a22;color:#b6f3c3}
+.muted{color:#888;font-size:13px}
+.bdesc{margin-top:10px;padding:12px;border-left:3px solid var(--g);background:#101010;border-radius:8px;color:#ddd;font-size:14px;line-height:1.4;white-space:pre-line}
+.sucs{display:grid;gap:10px}
+.suc{display:flex;gap:10px;align-items:center}
+.suc img{width:64px;height:64px;border-radius:10px;object-fit:cover}
+.suc div{flex:1}.suc b{color:var(--g)}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px}
+.kpi span{color:#bbb;font-size:12px}.kpi b{display:block;font-size:22px;color:var(--g);margin-top:4px}
+.kpi em{display:block;font-style:normal;color:#888;font-size:11px;margin-top:3px}
+.kpi.big2{border-color:var(--g)}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px 5px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--g);font-weight:normal}
+.wrap{overflow-x:auto}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.login{max-width:380px;margin:30px auto;text-align:center}
+.login img{width:96px;height:96px;border-radius:50%;object-fit:cover}
+.login .card{text-align:left;margin-top:16px}
+.datenav{display:flex;gap:6px;align-items:center;margin-bottom:12px}
+.datenav input{margin:0;flex:1}
+.wa{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));width:56px;height:56px;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.5);z-index:99;animation:latido 2s ease-in-out infinite}
+.wa svg{width:32px;height:32px;fill:#fff}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+
+<div id="splash"><div id="rain"></div><img class="slogo" src="rain.png" alt="OFFStudio"><div class="skip">TOCÁ PARA ENTRAR</div></div>
+
+<!-- INICIO -->
+<section id="v-home">
+  <img class="logo" id="home-logo" src="logo.jpg" alt="OFFStudio">
+  <h2>OFFSTUDIO</h2><p>Barbería · Palermo y Córdoba</p>
+  <button class="big main" data-go="reservar" style="animation-delay:.35s">Reservar turno<small>Elegí sucursal, barbero y horario</small></button>
+  <button class="big" data-go="barberos" style="animation-delay:.45s">Soy barbero<small>Mis ventas, turnos y lo que cobro</small></button>
+  <button class="big" data-go="duenos" style="animation-delay:.55s">Dueños<small>Turnos y ganancias del local</small></button>
+  <div class="links"><a href="https://www.instagram.com/off.studiooo/" target="_blank" rel="noopener">Instagram @off.studiooo</a><a href="https://wa.me/5491178128919" target="_blank" rel="noopener">WhatsApp</a></div>
+  <button class="sec hidden" id="install">📲 Instalar la app</button>
+  <div class="muted hidden" id="ios-hint" style="margin-top:14px;max-width:300px">En iPhone: tocá Compartir y después “Agregar a pantalla de inicio”.</div>
+</section>
+
+<!-- RESERVAR -->
+<section id="v-reservar" class="hidden">
+  <div class="bar"><button class="back" data-go="home">‹</button><img src="logo.jpg" alt=""><h1>RESERVAR</h1></div>
+  <main>
+    <div class="card"><h2>Sucursales</h2><div class="sucs">
+      <div class="suc"><img src="https://drive.google.com/thumbnail?id=1NBeKYfW-HvDNCJPgrRzV5dzMnLaffA1i&sz=w300" alt=""><div><b>Palermo (Buenos Aires)</b><br><span class="muted">Güemes 3208</span></div><a class="sec" href="https://share.google/EiHCm7qpLF7YShCrT" target="_blank" rel="noopener" style="text-decoration:none">📍 Mapa</a></div>
+      <div class="suc"><img src="https://drive.google.com/thumbnail?id=1r8cnvIiHHsllRdExQfl14ezR1eEdbfqX&sz=w300" alt=""><div><b>Córdoba Capital</b><br><span class="muted">Buenos Aires 1246</span></div><a class="sec" href="https://maps.app.goo.gl/dLEehKXUYyg9uzxu6" target="_blank" rel="noopener" style="text-decoration:none">📍 Mapa</a></div>
+    </div></div>
+    <div class="card"><h2>1. Sucursal</h2><div class="opts" id="r-suc"></div></div>
+    <div class="card hidden" id="r-c-bar"><h2>2. Barbero</h2><div class="opts" id="r-bar"></div><div id="r-bdesc" class="bdesc hidden"></div></div>
+    <div class="card hidden" id="r-c-serv"><h2>3. Servicio</h2><div class="opts" id="r-serv"></div></div>
+    <div class="card hidden" id="r-c-fecha"><h2>4. Fecha y horario</h2><input type="date" id="r-fecha"><div class="opts" id="r-horas"></div><div id="r-horas-msg" class="muted"></div></div>
+    <div class="card hidden" id="r-c-datos"><h2>5. Tus datos</h2>
+      <label>Nombre y apellido</label><input id="r-nombre" autocomplete="name">
+      <label>Email</label><input id="r-email" type="email" autocomplete="email">
+      <label>WhatsApp (ej: 11 1234 5678)</label><input id="r-tel" inputmode="tel" autocomplete="tel">
+      <label>Fecha de cumpleaños (opcional)</label><input id="r-cumple" type="date">
+      <button class="go" id="r-ok">Confirmar turno</button><div id="r-res"></div>
+    </div>
+  </main>
+  <a class="wa" href="https://wa.me/5491178128919?text=Hola%20OFFStudio%2C%20quer%C3%ADa%20hacer%20una%20consulta" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 32 32"><path d="M16 3C9 3 3.3 8.6 3.3 15.6c0 2.2.6 4.4 1.7 6.3L3 29l7.3-1.9c1.8 1 3.8 1.5 5.8 1.5 7 0 12.7-5.7 12.7-12.6S23 3 16 3zm0 23.2c-1.9 0-3.7-.5-5.3-1.4l-.4-.2-4.3 1.1 1.2-4.2-.3-.4c-1-1.6-1.5-3.5-1.5-5.4 0-5.8 4.8-10.5 10.6-10.5s10.6 4.7 10.6 10.5S21.8 26.2 16 26.2zm5.8-7.9c-.3-.2-1.9-.9-2.2-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-1 1.2-.2.2-.4.2-.7.1-.3-.2-1.3-.5-2.6-1.6-1-.9-1.6-1.9-1.8-2.2-.2-.3 0-.5.1-.7l.5-.6c.2-.2.2-.4.3-.6.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.8s1.2 3.2 1.4 3.5c.2.2 2.4 3.6 5.7 5 .8.3 1.4.5 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.9-.8 2.2-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4z"/></svg></a>
+</section>
+
+<!-- BARBEROS -->
+<section id="v-barberos" class="hidden">
+  <div class="bar"><button class="back" data-go="home">‹</button><img src="logo.jpg" alt=""><h1 id="b-title">BARBEROS</h1><button class="sec hidden" id="b-ref">↻</button><button class="sec hidden" id="b-out">Salir</button></div>
+  <div id="b-login" class="login"><img src="logo.jpg" alt=""><div class="muted" style="margin-top:8px">Acceso barberos</div>
+    <div class="card"><label>Usuario</label><input id="b-user" autocomplete="username" autocapitalize="none" placeholder="Tu nombre, ej: leonel">
+    <label>Contraseña</label><input id="b-pass" type="password" autocomplete="current-password">
+    <button class="go" id="b-enter">Entrar</button><div id="b-lmsg"></div></div></div>
+  <main id="b-app" class="hidden">
+    <div class="kpis">
+      <div class="kpi"><span>Facturaste hoy</span><b id="b-df">$0</b><em id="b-dc"></em></div>
+      <div class="kpi big2"><span>Ganás hoy</span><b id="b-dg">$0</b><em id="b-dp"></em></div>
+      <div class="kpi"><span>Facturaste en la semana</span><b id="b-sf">$0</b><em id="b-sc"></em></div>
+      <div class="kpi big2"><span>Cobrás el sábado</span><b id="b-sg">$0</b><em id="b-sp"></em></div>
+    </div>
+    <div class="card"><h2>Registrar venta</h2>
+      <label>Tipo</label><div class="opts" id="b-tipo"></div>
+      <div id="b-wserv"><label>Servicio</label><div class="opts" id="b-serv"></div></div>
+      <div id="b-wprod" class="hidden"><label>Producto</label><input id="b-prod" placeholder="Ej: Cera mate"></div>
+      <div class="row2"><div><label>Monto cobrado ($)</label><input id="b-monto" inputmode="numeric" placeholder="Ej: 10000"></div>
+      <div><label>Propina ($, opcional)</label><input id="b-prop" inputmode="numeric"></div></div>
+      <label>Método de pago</label><div class="opts" id="b-met"></div>
+      <label>Cliente (opcional)</label><input id="b-cli" placeholder="Nombre del cliente">
+      <button class="go" id="b-save">Guardar venta</button><div id="b-vmsg"></div>
+    </div>
+    <div class="card"><h2>Ventas de hoy</h2><div id="b-ventas" class="wrap"></div></div>
+    <div class="card"><h2>Turnos reservados hoy</h2><div id="b-turnos" class="wrap"></div></div>
+    <div class="card"><h2>Semana anterior</h2><div id="b-ant"></div></div>
+    <div class="card"><h2>Mi perfil</h2><div class="muted">Tu descripción aparece cuando un cliente te elige para reservar.</div>
+      <textarea id="b-desc" rows="4" maxlength="300" placeholder="Ej: Especialista en fades y diseños."></textarea>
+      <button class="go" id="b-psave">Guardar descripción</button><div id="b-pmsg"></div></div>
+  </main>
+</section>
+
+<!-- DUEÑOS -->
+<section id="v-duenos" class="hidden">
+  <div class="bar"><button class="back" data-go="home">‹</button><img src="logo.jpg" alt=""><h1 id="d-title">DUEÑOS</h1><button class="sec hidden" id="d-out">Salir</button></div>
+  <div id="d-login" class="login"><img src="logo.jpg" alt=""><div class="muted" style="margin-top:8px">Acceso dueños</div>
+    <div class="card"><label>Usuario</label><input id="d-user" autocomplete="username" autocapitalize="none">
+    <label>Contraseña</label><input id="d-pass" type="password" autocomplete="current-password">
+    <button class="go" id="d-enter">Entrar</button><div id="d-lmsg"></div></div></div>
+  <main id="d-app" class="hidden">
+    <div class="datenav"><button class="sec" id="d-prev">‹</button><input type="date" id="d-fecha"><button class="sec" id="d-next">›</button><button class="sec" id="d-hoy">Hoy</button></div>
+    <div class="muted" id="d-ftxt" style="margin-bottom:10px"></div>
+    <div class="kpis">
+      <div class="kpi"><span>Turnos del día</span><b id="d-kt">0</b></div>
+      <div class="kpi"><span>Facturado del día</span><b id="d-kd">$0</b><em id="d-kdl"></em></div>
+      <div class="kpi"><span>Facturado semana</span><b id="d-ks">$0</b><em id="d-ksl"></em></div>
+      <div class="kpi big2"><span>A pagar el sábado</span><b id="d-kp">$0</b><em>comisiones + propinas</em></div>
+    </div>
+    <div class="card"><h2>Turnos del día</h2><div id="d-turnos" class="wrap"></div></div>
+    <div class="card"><h2>Pago a barberos</h2><div class="muted" id="d-stxt"></div><div id="d-barb" class="wrap"></div></div>
+    <div class="card"><h2>Por sucursal</h2><div id="d-suc" class="wrap"></div></div>
+    <div class="card"><h2>Ventas del día</h2><div id="d-ventas" class="wrap"></div></div>
+  </main>
+</section>
+
+<script>
+var BASE='https://offstudio.app.n8n.cloud/webhook/';
+var SUC=['Palermo (Buenos Aires)','Córdoba Capital'];
+var SERV=['Corte','Barba','Corte + barba'];
+function el(i){return document.getElementById(i);}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function money(n){return '$'+Math.round(Number(n||0)).toLocaleString('es-AR');}
+function msg(id,t,ok){el(id).innerHTML=t?'<div class="msg '+(ok?'ok':'err')+'">'+esc(t)+'</div>':'';}
+function show(i){el(i).classList.remove('hidden');}
+function hide(i){el(i).classList.add('hidden');}
+function today(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function shift(f,n){var d=new Date(f+'T12:00:00');d.setDate(d.getDate()+n);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function opts(cont,items,state,key,cb){var c=el(cont);c.innerHTML='';items.forEach(function(v){var b=document.createElement('button');b.className='opt'+(state[key]===v?' sel':'');b.textContent=v;b.onclick=function(){state[key]=v;Array.prototype.forEach.call(c.children,function(x){x.classList.remove('sel');});b.classList.add('sel');if(cb)cb();};c.appendChild(b);});}
+function post(path,data){return fetch(BASE+path,{method:'POST',body:new URLSearchParams(data)}).then(function(r){return r.json();});}
+function table(head,rows){if(!rows.length)return '';return '<table><tr>'+head.map(function(h){return '<th>'+h+'</th>';}).join('')+'</tr>'+rows.map(function(r){return '<tr>'+r.map(function(c){return '<td>'+c+'</td>';}).join('')+'</tr>';}).join('')+'</table>';}
+
+/* ---------- navegación ---------- */
+var VIEWS=['home','reservar','barberos','duenos'];
+function go(v){if(VIEWS.indexOf(v)<0)v='home';VIEWS.forEach(function(x){el('v-'+x).classList.toggle('hidden',x!==v);});window.scrollTo(0,0);if(v==='reservar')initReservar();if(v==='barberos')initBarberos();if(v==='duenos')initDuenos();}
+document.querySelectorAll('[data-go]').forEach(function(b){b.addEventListener('click',function(){var v=b.getAttribute('data-go');if(location.hash!=='#'+v)location.hash=v;else go(v);});});
+window.addEventListener('hashchange',function(){go(location.hash.slice(1)||'home');});
+
+/* ---------- RESERVAR ---------- */
+var R={sucursal:'',barbero:'',servicio:'',fecha:'',hora:''},allB=null,rInit=false;
+function cargarBarberos(){return fetch(BASE+'offstudio-api?accion=barberos').then(function(r){return r.json();}).then(function(d){allB=d.barberos||[];});}
+function cargarHoras(){
+  R.hora='';el('r-horas').innerHTML='';el('r-horas-msg').textContent='';hide('r-c-datos');
+  if(!R.fecha||!R.barbero)return;
+  el('r-horas-msg').textContent='Buscando horarios...';
+  fetch(BASE+'offstudio-api?'+new URLSearchParams({accion:'horarios',sucursal:R.sucursal,barbero:R.barbero,fecha:R.fecha})).then(function(r){return r.json();}).then(function(d){
+    if(!d.slots||!d.slots.length){el('r-horas-msg').textContent='No hay horarios libres ese día. Probá otra fecha u otro barbero.';return;}
+    el('r-horas-msg').textContent='';opts('r-horas',d.slots,R,'hora',function(){show('r-c-datos');});
+  }).catch(function(){el('r-horas-msg').textContent='Error al cargar horarios. Revisá tu conexión.';});
+}
+function elegirSucursal(){
+  R.barbero='';hide('r-c-serv');hide('r-c-fecha');hide('r-c-datos');hide('r-bdesc');show('r-c-bar');
+  var pintar=function(){var lista=allB.filter(function(b){return b.sucursal===R.sucursal;});
+    if(!lista.length){el('r-bar').innerHTML='<span class="muted">No hay barberos disponibles.</span>';return;}
+    opts('r-bar',lista.map(function(b){return b.nombre;}),R,'barbero',function(){
+      var bb=lista.filter(function(b){return b.nombre===R.barbero;})[0];
+      if(bb&&bb.descripcion){el('r-bdesc').textContent=bb.descripcion;show('r-bdesc');}else hide('r-bdesc');
+      show('r-c-serv');hide('r-c-fecha');hide('r-c-datos');if(R.servicio){show('r-c-fecha');cargarHoras();}});};
+  if(allB)pintar();else{el('r-bar').innerHTML='<span class="muted">Cargando barberos...</span>';cargarBarberos().then(pintar).catch(function(){el('r-bar').innerHTML='<span class="muted">Error de conexión.</span>';});}
+}
+function initReservar(){
+  if(rInit)return;rInit=true;
+  opts('r-suc',SUC,R,'sucursal',elegirSucursal);
+  opts('r-serv',SERV,R,'servicio',function(){show('r-c-fecha');cargarHoras();});
+  el('r-fecha').min=today();
+  el('r-fecha').onchange=function(){R.fecha=el('r-fecha').value;cargarHoras();};
+  cargarBarberos().catch(function(){});
+  el('r-ok').onclick=function(){
+    var r=el('r-res');r.innerHTML='';
+    if(!el('r-nombre').value.trim()||!el('r-email').value.trim()||!el('r-tel').value.trim()){msg('r-res','Completá nombre, email y WhatsApp.');return;}
+    el('r-ok').disabled=true;
+    post('offstudio-api-reservar',{sucursal:R.sucursal,barbero:R.barbero,servicio:R.servicio,fecha:R.fecha,hora:R.hora,nombre:el('r-nombre').value,email:el('r-email').value,telefono:el('r-tel').value,cumple:el('r-cumple').value}).then(function(d){
+      if(d.ok){r.innerHTML='<div class="msg ok">¡Turno confirmado! '+esc(d.mensaje)+'</div>'+(d.maps?'<a class="go" href="'+esc(d.maps)+'" target="_blank" rel="noopener">📍 Cómo llegar</a>':'');}
+      else{msg('r-res',d.error||'No se pudo reservar.');el('r-ok').disabled=false;if(d.recargar)cargarHoras();}
+    }).catch(function(){msg('r-res','Error de conexión. Intentá de nuevo.');el('r-ok').disabled=false;});
+  };
+}
+
+/* ---------- BARBEROS ---------- */
+var BS=JSON.parse(localStorage.getItem('offB')||'null'),V={tipo:'Servicio',servicio:'Corte',metodo:'Efectivo'},bInit=false;
+function bcall(data){data.usuario=BS.u;data.clave=BS.p;return post('offstudio-barberos-api',data);}
+function bPintar(d){
+  var b=d.barbero||{};
+  el('b-title').innerHTML='HOLA, '+esc(String(b.nombre||'').toUpperCase())+'<small>'+esc(b.sucursal)+' · '+esc(b.comision)+'% servicios · 10% productos</small>';
+  el('b-df').textContent=money(d.dia.facturado);el('b-dc').textContent=d.dia.cantidad+' ventas';
+  el('b-dg').textContent=money(d.dia.cobra);el('b-dp').textContent=money(d.dia.comision)+' comisión + '+money(d.dia.propinas)+' propinas';
+  el('b-sf').textContent=money(d.sem.facturado);el('b-sc').textContent=d.semana_texto;
+  el('b-sg').textContent=money(d.sem.cobra);el('b-sp').textContent=money(d.sem.comision)+' comisión + '+money(d.sem.propinas)+' propinas';
+  el('b-ventas').innerHTML=table(['Detalle','Cliente','Pago','Monto','Propina'],d.ventas_hoy.map(function(v){return [esc(v.servicio),esc(v.cliente),esc(v.metodo),money(v.monto),money(v.propina)];}))||'<div class="muted">Todavía no cargaste ventas hoy.</div>';
+  el('b-turnos').innerHTML=table(['Hora','Cliente','Servicio','WhatsApp'],d.turnos_hoy.map(function(x){return [esc(x.hora),esc(x.cliente),esc(x.servicio),x.telefono?'<a href="https://wa.me/'+esc(x.telefono)+'" target="_blank" rel="noopener">'+esc(x.telefono)+'</a>':''];}))||'<div class="muted">No tenés turnos reservados para hoy.</div>';
+  el('b-ant').innerHTML='<div class="muted">'+esc(d.semana_anterior_texto)+'</div>'+table(['',''],[['Facturado',money(d.semAnt.facturado)],['Comisión',money(d.semAnt.comision)],['Propinas',money(d.semAnt.propinas)],['<b>Total cobrado</b>','<b>'+money(d.semAnt.cobra)+'</b>']]);
+  if(document.activeElement!==el('b-desc'))el('b-desc').value=b.descripcion||'';
+}
+function bMostrarApp(d){hide('b-login');show('b-app');show('b-ref');show('b-out');bPintar(d);}
+function bSalir(){BS=null;localStorage.removeItem('offB');el('b-pass').value='';hide('b-app');hide('b-ref');hide('b-out');show('b-login');el('b-title').textContent='BARBEROS';}
+function initBarberos(){
+  if(!bInit){bInit=true;
+    opts('b-tipo',['Servicio','Producto'],V,'tipo',function(){el('b-wserv').classList.toggle('hidden',V.tipo!=='Servicio');el('b-wprod').classList.toggle('hidden',V.tipo!=='Producto');});
+    opts('b-serv',SERV,V,'servicio');opts('b-met',['Efectivo','Transferencia','Tarjeta'],V,'metodo');
+    var entrar=function(){var u=el('b-user').value.trim().toLowerCase(),p=el('b-pass').value.trim();msg('b-lmsg','');
+      if(!u||!p){msg('b-lmsg','Completá usuario y contraseña.');return;}
+      el('b-enter').disabled=true;BS={u:u,p:p};
+      bcall({accion:'resumen'}).then(function(d){el('b-enter').disabled=false;if(!d.ok){BS=null;msg('b-lmsg',d.error||'No se pudo entrar.');return;}localStorage.setItem('offB',JSON.stringify(BS));bMostrarApp(d);})
+      .catch(function(){el('b-enter').disabled=false;BS=null;msg('b-lmsg','Error de conexión.');});};
+    el('b-enter').onclick=entrar;el('b-pass').onkeydown=function(e){if(e.key==='Enter')entrar();};
+    el('b-out').onclick=bSalir;
+    el('b-ref').onclick=function(){bcall({accion:'resumen'}).then(function(d){if(d.ok)bPintar(d);});};
+    el('b-save').onclick=function(){msg('b-vmsg','');
+      var monto=el('b-monto').value.replace(/[^0-9]/g,'');
+      if(V.tipo==='Producto'&&!el('b-prod').value.trim()){msg('b-vmsg','Escribí qué producto vendiste.');return;}
+      if(!(Number(monto)>0)){msg('b-vmsg','Poné el monto cobrado.');return;}
+      el('b-save').disabled=true;
+      bcall({accion:'venta',tipo:V.tipo,servicio:V.servicio,producto:el('b-prod').value,monto:monto,propina:el('b-prop').value.replace(/[^0-9]/g,''),metodo:V.metodo,cliente:el('b-cli').value})
+      .then(function(d){el('b-save').disabled=false;if(!d.ok){msg('b-vmsg',d.error||'No se pudo guardar.');return;}bPintar(d);msg('b-vmsg','Venta guardada.',true);['b-monto','b-prop','b-cli','b-prod'].forEach(function(i){el(i).value='';});})
+      .catch(function(){el('b-save').disabled=false;msg('b-vmsg','Error de conexión. Intentá de nuevo.');});};
+    el('b-psave').onclick=function(){el('b-psave').disabled=true;msg('b-pmsg','');
+      bcall({accion:'perfil',descripcion:el('b-desc').value}).then(function(d){el('b-psave').disabled=false;if(!d.ok){msg('b-pmsg',d.error||'No se pudo guardar.');return;}bPintar(d);msg('b-pmsg','Descripción guardada.',true);})
+      .catch(function(){el('b-psave').disabled=false;msg('b-pmsg','Error de conexión.');});};
+  }
+  if(BS){bcall({accion:'resumen'}).then(function(d){if(d.ok)bMostrarApp(d);else bSalir();}).catch(function(){});}
+}
+
+/* ---------- DUEÑOS ---------- */
+var DS=JSON.parse(localStorage.getItem('offD')||'null'),dInit=false,dFecha=today();
+function dcall(){return post('offstudio-duenos-api',{usuario:DS.u,clave:DS.p,accion:'panel',fecha:dFecha});}
+function dPintar(d){
+  el('d-title').innerHTML='DUEÑOS<small>Hola, '+esc(d.nombre)+'</small>';
+  el('d-fecha').value=d.fecha;el('d-ftxt').textContent=d.fecha_texto;el('d-stxt').textContent=d.semana_texto;
+  el('d-kt').textContent=d.turnos.length;
+  el('d-kd').textContent=money(d.total_dia.facturado);el('d-kdl').textContent='Queda al local '+money(d.total_dia.local);
+  el('d-ks').textContent=money(d.total_semana.facturado);el('d-ksl').textContent='Queda al local '+money(d.total_semana.local);
+  el('d-kp').textContent=money(d.total_semana.a_pagar);
+  el('d-turnos').innerHTML=table(['Hora','Sucursal','Barbero','Cliente','Servicio','WhatsApp'],d.turnos.map(function(t){return [esc(t.hora),esc(t.sucursal),esc(t.barbero),esc(t.cliente),esc(t.servicio),t.telefono?'<a href="https://wa.me/'+esc(t.telefono)+'" target="_blank" rel="noopener">'+esc(t.telefono)+'</a>':''];}))||'<div class="muted">No hay turnos este día.</div>';
+  el('d-barb').innerHTML=table(['Barbero','%','Hoy','Semana','Comisión','Propinas','<b>Pagar</b>'],d.barberos.map(function(b){return [esc(b.nombre)+'<br><span class="muted">'+esc(b.sucursal)+'</span>',b.comision+'%',money(b.dia.facturado),money(b.semana.facturado),money(b.semana.comision),money(b.semana.propinas),'<b>'+money(b.semana.a_pagar)+'</b>'];}));
+  el('d-suc').innerHTML=table(['Sucursal','Hoy','Semana','Comisiones','Queda al local'],d.sucursales.map(function(s){return [esc(s.sucursal),money(s.dia.facturado),money(s.semana.facturado),money(s.semana.comision),money(s.semana.local)];}));
+  el('d-ventas').innerHTML=table(['Barbero','Detalle','Cliente','Pago','Monto','Propina'],d.ventas_dia.map(function(v){return [esc(v.barbero),esc(v.detalle),esc(v.cliente),esc(v.metodo),money(v.monto),money(v.propina)];}))||'<div class="muted">Sin ventas este día.</div>';
+}
+function dCargar(){dcall().then(function(d){if(!d.ok){dSalir();msg('d-lmsg',d.error);return;}hide('d-login');show('d-app');show('d-out');dPintar(d);}).catch(function(){msg('d-lmsg','Error de conexión.');});}
+function dSalir(){DS=null;localStorage.removeItem('offD');el('d-pass').value='';hide('d-app');hide('d-out');show('d-login');el('d-title').textContent='DUEÑOS';}
+function initDuenos(){
+  if(!dInit){dInit=true;
+    var entrar=function(){var u=el('d-user').value.trim().toLowerCase(),p=el('d-pass').value.trim();msg('d-lmsg','');
+      if(!u||!p){msg('d-lmsg','Completá usuario y contraseña.');return;}
+      el('d-enter').disabled=true;DS={u:u,p:p};
+      dcall().then(function(d){el('d-enter').disabled=false;if(!d.ok){DS=null;msg('d-lmsg',d.error||'No se pudo entrar.');return;}localStorage.setItem('offD',JSON.stringify(DS));hide('d-login');show('d-app');show('d-out');dPintar(d);})
+      .catch(function(){el('d-enter').disabled=false;DS=null;msg('d-lmsg','Error de conexión.');});};
+    el('d-enter').onclick=entrar;el('d-pass').onkeydown=function(e){if(e.key==='Enter')entrar();};
+    el('d-out').onclick=dSalir;
+    el('d-prev').onclick=function(){dFecha=shift(dFecha,-1);dCargar();};
+    el('d-next').onclick=function(){dFecha=shift(dFecha,1);dCargar();};
+    el('d-hoy').onclick=function(){dFecha=today();dCargar();};
+    el('d-fecha').onchange=function(){if(el('d-fecha').value){dFecha=el('d-fecha').value;dCargar();}};
+  }
+  if(DS)dCargar();
+}
+
+/* ---------- splash + animaciones ---------- */
+(function(){
+  var sp=el('splash'),rain=el('rain');
+  for(var i=0;i<28;i++){var im=document.createElement('img');im.src='rain.png';im.alt='';im.className='drop';var z=24+Math.random()*40;im.style.width=z+'px';im.style.left=(Math.random()*100)+'vw';im.style.animationDuration=(1.6+Math.random()*1.8)+'s';im.style.animationDelay=(Math.random()*1.5)+'s';rain.appendChild(im);}
+  function boom(){var lg=el('home-logo');if(!lg||el('v-home').classList.contains('hidden'))return;var r=lg.getBoundingClientRect();var cx=r.left+r.width/2,cy=r.top+r.height/2;for(var k=0;k<46;k++){var d=document.createElement('span');d.className='dot';var a=Math.random()*Math.PI*2,dist=70+Math.random()*150,sz=4+Math.random()*8;d.style.left=cx+'px';d.style.top=cy+'px';d.style.width=sz+'px';d.style.height=sz+'px';d.style.setProperty('--x',(Math.cos(a)*dist)+'px');d.style.setProperty('--y',(Math.sin(a)*dist)+'px');document.body.appendChild(d);(function(n){setTimeout(function(){n.remove();},1300);})(d);}}
+  var done=false;function cerrar(){if(done)return;done=true;sp.classList.add('fuera');setTimeout(function(){sp.remove();setTimeout(boom,250);},600);}
+  sp.addEventListener('click',cerrar);setTimeout(cerrar,2800);
+  el('home-logo').addEventListener('click',boom);setInterval(boom,9000);
+})();
+
+/* ---------- instalación ---------- */
+var deferred=null;
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferred=e;show('install');});
+el('install').onclick=function(){if(!deferred)return;deferred.prompt();deferred.userChoice.then(function(){deferred=null;hide('install');});};
+var standalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+if(/iphone|ipad|ipod/i.test(navigator.userAgent)&&!standalone)show('ios-hint');
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}
+
+go(location.hash.slice(1)||'home');
+</script>
+</body></html>
