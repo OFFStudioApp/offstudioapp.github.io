@@ -172,6 +172,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px 5px;t
   <main id="d-app" class="hidden">
     <div class="datenav"><button class="sec" id="d-prev">‹</button><input type="date" id="d-fecha"><button class="sec" id="d-next">›</button><button class="sec" id="d-hoy">Hoy</button></div>
     <div class="muted" id="d-ftxt" style="margin-bottom:10px"></div>
+    <div class="card"><h2>Sucursal</h2><div class="opts" id="d-sucsel"></div></div>
     <div class="kpis">
       <div class="kpi"><span>Turnos del día</span><b id="d-kt">0</b></div>
       <div class="kpi"><span>Facturado del día</span><b id="d-kd">$0</b><em id="d-kdl"></em></div>
@@ -294,17 +295,27 @@ function initBarberos(){
 /* ---------- DUEÑOS ---------- */
 var DS=JSON.parse(localStorage.getItem('offD')||'null'),dInit=false,dFecha=today();
 function dcall(){return post('offstudio-duenos-api',{usuario:DS.u,clave:DS.p,accion:'panel',fecha:dFecha});}
+var DSUC=localStorage.getItem('offDsuc')||'Todas',DLAST=null;
 function dPintar(d){
-  el('d-title').innerHTML='DUEÑOS<small>Hola, '+esc(d.nombre)+'</small>';
+  DLAST=d;
+  var F=function(x){return DSUC==='Todas'||x.sucursal===DSUC;};
+  var Z=function(){return {facturado:0,propinas:0,comision:0,a_pagar:0,local:0,cantidad:0};};
+  var barbs=d.barberos.filter(F),tD=Z(),tS=Z();
+  barbs.forEach(function(b){for(var k in tD){tD[k]+=Number(b.dia[k]||0);tS[k]+=Number(b.semana[k]||0);}});
+  var turnos=d.turnos.filter(F),ventas=d.ventas_dia.filter(F),sucs=d.sucursales.filter(F);
+  opts('d-sucsel',['Todas'].concat(SUC),{v:DSUC},'v',function(){DSUC=this&&this.v||DSUC;});
+  Array.prototype.forEach.call(el('d-sucsel').children,function(b){b.onclick=function(){DSUC=b.textContent;localStorage.setItem('offDsuc',DSUC);dPintar(DLAST);};});
+  var sufijo=DSUC==='Todas'?'':' · '+DSUC;
+  el('d-title').innerHTML='DUEÑOS<small>Hola, '+esc(d.nombre)+esc(sufijo)+'</small>';
   el('d-fecha').value=d.fecha;el('d-ftxt').textContent=d.fecha_texto;el('d-stxt').textContent=d.semana_texto;
-  el('d-kt').textContent=d.turnos.length;
-  el('d-kd').textContent=money(d.total_dia.facturado);el('d-kdl').textContent='Queda al local '+money(d.total_dia.local);
-  el('d-ks').textContent=money(d.total_semana.facturado);el('d-ksl').textContent='Queda al local '+money(d.total_semana.local);
-  el('d-kp').textContent=money(d.total_semana.a_pagar);
-  el('d-turnos').innerHTML=table(['Hora','Sucursal','Barbero','Cliente','Servicio','WhatsApp'],d.turnos.map(function(t){return [esc(t.hora),esc(t.sucursal),esc(t.barbero),esc(t.cliente),esc(t.servicio),t.telefono?'<a href="https://wa.me/'+esc(t.telefono)+'" target="_blank" rel="noopener">'+esc(t.telefono)+'</a>':''];}))||'<div class="muted">No hay turnos este día.</div>';
-  el('d-barb').innerHTML=table(['Barbero','%','Hoy','Semana','Comisión','Propinas','<b>Pagar</b>'],d.barberos.map(function(b){return [esc(b.nombre)+'<br><span class="muted">'+esc(b.sucursal)+'</span>',b.comision+'%',money(b.dia.facturado),money(b.semana.facturado),money(b.semana.comision),money(b.semana.propinas),'<b>'+money(b.semana.a_pagar)+'</b>'];}));
-  el('d-suc').innerHTML=table(['Sucursal','Hoy','Semana','Comisiones','Queda al local'],d.sucursales.map(function(s){return [esc(s.sucursal),money(s.dia.facturado),money(s.semana.facturado),money(s.semana.comision),money(s.semana.local)];}));
-  el('d-ventas').innerHTML=table(['Barbero','Detalle','Cliente','Pago','Monto','Propina'],d.ventas_dia.map(function(v){return [esc(v.barbero),esc(v.detalle),esc(v.cliente),esc(v.metodo),money(v.monto),money(v.propina)];}))||'<div class="muted">Sin ventas este día.</div>';
+  el('d-kt').textContent=turnos.length;
+  el('d-kd').textContent=money(tD.facturado);el('d-kdl').textContent='Queda al local '+money(tD.local);
+  el('d-ks').textContent=money(tS.facturado);el('d-ksl').textContent='Queda al local '+money(tS.local);
+  el('d-kp').textContent=money(tS.a_pagar);
+  el('d-turnos').innerHTML=table(['Hora','Sucursal','Barbero','Cliente','Servicio','WhatsApp'],turnos.map(function(t){return [esc(t.hora),esc(t.sucursal),esc(t.barbero),esc(t.cliente),esc(t.servicio),t.telefono?'<a href="https://wa.me/'+esc(t.telefono)+'" target="_blank" rel="noopener">'+esc(t.telefono)+'</a>':''];}))||'<div class="muted">No hay turnos este día.</div>';
+  el('d-barb').innerHTML=table(['Barbero','%','Hoy','Semana','Comisión','Propinas','<b>Pagar</b>'],barbs.map(function(b){return [esc(b.nombre)+'<br><span class="muted">'+esc(b.sucursal)+'</span>',b.comision+'%',money(b.dia.facturado),money(b.semana.facturado),money(b.semana.comision),money(b.semana.propinas),'<b>'+money(b.semana.a_pagar)+'</b>'];}))||'<div class="muted">Sin barberos.</div>';
+  el('d-suc').innerHTML=table(['Sucursal','Hoy','Semana','Comisiones','Queda al local'],sucs.map(function(s){return [esc(s.sucursal),money(s.dia.facturado),money(s.semana.facturado),money(s.semana.comision),money(s.semana.local)];}));
+  el('d-ventas').innerHTML=table(['Sucursal','Barbero','Detalle','Cliente','Pago','Monto','Propina'],ventas.map(function(v){return [esc(v.sucursal),esc(v.barbero),esc(v.detalle),esc(v.cliente),esc(v.metodo),money(v.monto),money(v.propina)];}))||'<div class="muted">Sin ventas este día.</div>';
 }
 function dCargar(){dcall().then(function(d){if(!d.ok){dSalir();msg('d-lmsg',d.error);return;}hide('d-login');show('d-app');show('d-out');dPintar(d);}).catch(function(){msg('d-lmsg','Error de conexión.');});}
 function dSalir(){DS=null;localStorage.removeItem('offD');el('d-pass').value='';hide('d-app');hide('d-out');show('d-login');el('d-title').textContent='DUEÑOS';}
