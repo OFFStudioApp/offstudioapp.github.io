@@ -1,6 +1,6 @@
 // OFFStudio - service worker: guarda la app para que abra rápido.
 // Los datos (turnos, ventas) siempre se piden en vivo a n8n.
-var CACHE = 'offstudio-v1';
+var CACHE = 'offstudio-v2';
 var FILES = ['./', 'index.html', 'manifest.json', 'logo.jpg', 'rain.png', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 
 self.addEventListener('install', function (e) {
