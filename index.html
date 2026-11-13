@@ -49,6 +49,8 @@ a{color:var(--g)}
 .big small{display:block;font-weight:normal;font-size:12px;opacity:.75;margin-top:3px}
 .links{margin-top:18px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-size:14px}
 .links a{text-decoration:none}
+.soc{border:1px solid #333;background:#111;color:var(--g);padding:9px 16px;border-radius:999px;font-weight:bold}
+#home-logo{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;-webkit-user-drag:none}
 #install{margin-top:18px}
 /* common */
 main{max-width:720px;margin:0 auto;padding:16px 14px 90px}
@@ -94,9 +96,12 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px 5px;t
   <img class="logo" id="home-logo" src="logo.jpg" alt="OFFStudio">
   <h2>OFFSTUDIO</h2><p>Barbería · Palermo y Córdoba</p>
   <button class="big main" data-go="reservar" style="animation-delay:.35s">Reservar turno<small>Elegí sucursal, barbero y horario</small></button>
-  <button class="big" data-go="barberos" style="animation-delay:.45s">Soy barbero<small>Mis ventas, turnos y lo que cobro</small></button>
-  <button class="big" data-go="duenos" style="animation-delay:.55s">Dueños<small>Turnos y ganancias del local</small></button>
-  <div class="links"><a href="https://www.instagram.com/off.studiooo/" target="_blank" rel="noopener">Instagram @off.studiooo</a><a href="https://wa.me/5491178128919" target="_blank" rel="noopener">WhatsApp</a></div>
+  <div class="links"><a class="soc" href="https://www.instagram.com/off.studiooo/" target="_blank" rel="noopener">Instagram</a><a class="soc" href="https://wa.me/5491178128919" target="_blank" rel="noopener">WhatsApp</a><a class="soc" href="https://www.youtube.com/@OFFStudioo" target="_blank" rel="noopener">YouTube</a></div>
+  <div id="equipo" class="hidden" style="width:100%;margin-top:22px">
+    <div class="muted" style="margin-bottom:10px">Acceso equipo</div>
+    <button class="big" data-go="barberos">Soy barbero<small>Mis ventas, turnos y lo que cobro</small></button>
+    <button class="big" data-go="duenos">Dueños<small>Turnos y ganancias del local</small></button>
+  </div>
   <button class="sec hidden" id="install">📲 Instalar la app</button>
   <div class="muted hidden" id="ios-hint" style="margin-top:14px;max-width:300px">En iPhone: tocá Compartir y después “Agregar a pantalla de inicio”.</div>
 </section>
@@ -328,6 +333,15 @@ function initDuenos(){
   var done=false;function cerrar(){if(done)return;done=true;sp.classList.add('fuera');setTimeout(function(){sp.remove();setTimeout(boom,250);},600);}
   sp.addEventListener('click',cerrar);setTimeout(cerrar,2800);
   el('home-logo').addEventListener('click',boom);setInterval(boom,9000);
+  // Acceso equipo: mantener apretado el logo 3 segundos
+  var lg=el('home-logo'),lp=null;
+  function abrirEquipo(){show('equipo');boom();if(navigator.vibrate)navigator.vibrate(60);el('equipo').scrollIntoView({behavior:'smooth'});}
+  function ini(e){clearTimeout(lp);lp=setTimeout(abrirEquipo,3000);}
+  function fin(){clearTimeout(lp);}
+  lg.addEventListener('pointerdown',ini);['pointerup','pointerleave','pointercancel'].forEach(function(t){lg.addEventListener(t,fin);});
+  lg.addEventListener('contextmenu',function(e){e.preventDefault();});
+  // En el celular de un barbero o dueño ya logueado, el acceso queda visible
+  if(localStorage.getItem('offB')||localStorage.getItem('offD'))show('equipo');
 })();
 
 /* ---------- instalación ---------- */
