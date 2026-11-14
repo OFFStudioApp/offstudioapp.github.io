@@ -182,7 +182,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px 5px;t
     <div class="card"><h2>Turnos del día</h2><div id="d-turnos" class="wrap"></div></div>
     <div class="card"><h2>Pago a barberos</h2><div class="muted" id="d-stxt"></div><div id="d-barb" class="wrap"></div></div>
     <div class="card"><h2>Por sucursal</h2><div id="d-suc" class="wrap"></div></div>
-    <div class="card"><h2>Ventas del día</h2><div id="d-ventas" class="wrap"></div></div>
+    <div class="card"><h2>Ventas del día</h2><div class="muted">Tocá un barbero para ver sus ventas y cuánto hizo.</div><div class="opts" id="d-vsel"></div><div id="d-vres"></div><div id="d-ventas" class="wrap"></div></div>
   </main>
 </section>
 
@@ -315,7 +315,29 @@ function dPintar(d){
   el('d-turnos').innerHTML=table(['Hora','Sucursal','Barbero','Cliente','Servicio','WhatsApp'],turnos.map(function(t){return [esc(t.hora),esc(t.sucursal),esc(t.barbero),esc(t.cliente),esc(t.servicio),t.telefono?'<a href="https://wa.me/'+esc(t.telefono)+'" target="_blank" rel="noopener">'+esc(t.telefono)+'</a>':''];}))||'<div class="muted">No hay turnos este día.</div>';
   el('d-barb').innerHTML=table(['Barbero','%','Hoy','Semana','Comisión','Propinas','<b>Pagar</b>'],barbs.map(function(b){return [esc(b.nombre)+'<br><span class="muted">'+esc(b.sucursal)+'</span>',b.comision+'%',money(b.dia.facturado),money(b.semana.facturado),money(b.semana.comision),money(b.semana.propinas),'<b>'+money(b.semana.a_pagar)+'</b>'];}))||'<div class="muted">Sin barberos.</div>';
   el('d-suc').innerHTML=table(['Sucursal','Hoy','Semana','Comisiones','Queda al local'],sucs.map(function(s){return [esc(s.sucursal),money(s.dia.facturado),money(s.semana.facturado),money(s.semana.comision),money(s.semana.local)];}));
-  el('d-ventas').innerHTML=table(['Sucursal','Barbero','Detalle','Cliente','Pago','Monto','Propina'],ventas.map(function(v){return [esc(v.sucursal),esc(v.barbero),esc(v.detalle),esc(v.cliente),esc(v.metodo),money(v.monto),money(v.propina)];}))||'<div class="muted">Sin ventas este día.</div>';
+  dVentas(barbs,ventas);
+}
+function dKey(b){return b.nombre+'|'+b.sucursal;}
+var DVB=localStorage.getItem('offDvb')||'Todos';
+function dVentas(barbs,ventas){
+  var mias=function(b){return ventas.filter(function(v){return v.barbero===b.nombre&&v.sucursal===b.sucursal;});};
+  if(DVB!=='Todos'&&!barbs.some(function(b){return dKey(b)===DVB;}))DVB='Todos';
+  var c=el('d-vsel');c.innerHTML='';
+  var mk=function(key,txt){var bt=document.createElement('button');bt.className='opt'+(DVB===key?' sel':'');bt.innerHTML=txt;bt.onclick=function(){DVB=key;localStorage.setItem('offDvb',DVB);dVentas(barbs,ventas);};c.appendChild(bt);};
+  var tot=ventas.reduce(function(a,v){return a+Number(v.monto||0);},0);
+  mk('Todos','Todos · '+money(tot));
+  barbs.forEach(function(b){mk(dKey(b),esc(b.nombre)+' · '+money(b.dia.facturado)+(DSUC==='Todas'?' <span class="muted">('+esc(b.sucursal==='Córdoba Capital'?'Cba':'Pal')+')</span>':''));});
+  var head=['Detalle','Cliente','Pago','Monto','Propina'];
+  var fila=function(v){return [esc(v.detalle),esc(v.cliente),esc(v.metodo),money(v.monto),money(v.propina)];};
+  if(DVB==='Todos'){
+    el('d-vres').innerHTML=table(['Barbero','Ventas','Facturado','Propinas','Comisión','<b>Cobra hoy</b>'],barbs.map(function(b){var x=b.dia;return [esc(b.nombre)+'<br><span class="muted">'+esc(b.sucursal)+'</span>',String(x.cantidad||0),money(x.facturado),money(x.propinas),money(x.comision),'<b>'+money(Number(x.comision||0)+Number(x.propinas||0))+'</b>'];}));
+    var html='';barbs.forEach(function(b){var m=mias(b);if(!m.length)return;html+='<h3 style="margin:14px 0 6px">'+esc(b.nombre)+' <span class="muted">· '+esc(b.sucursal)+' · '+m.length+' ventas · '+money(b.dia.facturado)+'</span></h3>'+table(head,m.map(fila));});
+    el('d-ventas').innerHTML=html||'<div class="muted">Sin ventas este día.</div>';
+  }else{
+    var b=barbs.filter(function(x){return dKey(x)===DVB;})[0],x=b.dia,m=mias(b);
+    el('d-vres').innerHTML='<div class="kpis"><div class="kpi"><span>Ventas</span><b>'+(x.cantidad||0)+'</b></div><div class="kpi"><span>Facturado</span><b>'+money(x.facturado)+'</b><em>Queda al local '+money(x.local)+'</em></div><div class="kpi"><span>Comisión ('+b.comision+'%)</span><b>'+money(x.comision)+'</b><em>+ '+money(x.propinas)+' propinas</em></div><div class="kpi big2"><span>Cobra hoy</span><b>'+money(Number(x.comision||0)+Number(x.propinas||0))+'</b><em>comisión + propinas</em></div></div>';
+    el('d-ventas').innerHTML=table(head,m.map(fila))||'<div class="muted">'+esc(b.nombre)+' no tiene ventas este día.</div>';
+  }
 }
 function dCargar(){dcall().then(function(d){if(!d.ok){dSalir();msg('d-lmsg',d.error);return;}hide('d-login');show('d-app');show('d-out');dPintar(d);}).catch(function(){msg('d-lmsg','Error de conexión.');});}
 function dSalir(){DS=null;localStorage.removeItem('offD');el('d-pass').value='';hide('d-app');hide('d-out');show('d-login');el('d-title').textContent='DUEÑOS';}
